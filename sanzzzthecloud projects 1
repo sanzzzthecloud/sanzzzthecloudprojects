@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Ryu & Jihan Together Forever</title>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(circle at top, #3a003a, #12001a, #000);
+    font-family: 'Arial Black', sans-serif;
+}
+
+audio { display: none; }
+
+/* ===== KADO ===== */
+.gift-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    perspective: 1200px;
+    transition: opacity 1.2s ease;
+}
+
+.gift-box {
+    width: 180px;
+    height: 130px;
+    background: linear-gradient(145deg, #ff4fa3, #8a2be2);
+    border-radius: 18px;
+    box-shadow:
+        0 0 30px rgba(255,105,180,.6),
+        0 0 80px rgba(186,85,211,.6),
+        inset 0 0 20px rgba(255,255,255,.4);
+    cursor: pointer;
+}
+
+.gift-lid {
+    position: absolute;
+    width: 200px;
+    height: 60px;
+    top: -55px;
+    left: -10px;
+    background: linear-gradient(145deg, #ff77cc, #a855f7);
+    border-radius: 20px;
+    transform-origin: bottom center;
+    transition: transform 1.6s cubic-bezier(.2,.9,.3,1.2), opacity 1s;
+    box-shadow: 0 0 25px rgba(255,105,180,.7);
+}
+
+.gift-wrapper.open .gift-lid {
+    transform: rotateX(120deg) translateY(-40px);
+    opacity: 0;
+}
+
+/* ===== OPENING TEXT ===== */
+.opening {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    opacity: 0;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.opening h1 {
+    font-size: 90px;
+    margin: 0;
+    background: linear-gradient(90deg,#ff4fd8,#b266ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow:
+        0 0 25px #ff66ff,
+        0 0 70px #cc00ff;
+}
+
+.opening p {
+    font-size: 44px;
+    margin-top: 20px;
+    background: linear-gradient(90deg,#00ccff,#66ffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow:
+        0 0 20px #00ccff,
+        0 0 60px #00ffff;
+}
+
+/* SPIN + ZOOM */
+.opening.show {
+    animation: spinZoom 2.5s ease forwards;
+}
+
+@keyframes spinZoom {
+    0% {
+        opacity: 0;
+        transform: scale(0.2) rotate(-360deg);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.1) rotate(20deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* ===== TEKS JATUH ===== */
+.text {
+    position: absolute;
+    font-size: 46px;
+    font-weight: 900;
+    background: linear-gradient(90deg,#ff66ff,#ff99cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow:
+        0 0 10px #ff66ff,
+        0 0 25px #ff33cc,
+        0 0 45px #ff00aa;
+    white-space: nowrap;
+    z-index: 5;
+}
+
+/* ===== LOVE ===== */
+.love {
+    position: absolute;
+    animation: fall linear forwards;
+    z-index: 2;
+}
+
+@keyframes fall {
+    from { transform: translateY(-120px) scale(.8); opacity: 1; }
+    to { transform: translateY(120vh) scale(1.2); opacity: 0; }
+}
+
+/* ===== FIREWORK ===== */
+.firework {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: explode 1s linear forwards;
+}
+
+@keyframes explode {
+    from { transform: scale(0); opacity: 1; }
+    to { transform: translate(var(--x), var(--y)) scale(1.5); opacity: 0; }
+}
+
+/* ===== SPARKLE ===== */
+.sparkle {
+    position: absolute;
+    color: #ff99ff;
+    font-size: 18px;
+    animation: sparkle 1.5s linear forwards;
+}
+
+@keyframes sparkle {
+    from { transform: scale(0); opacity: 1; }
+    to { transform: scale(1.5) translateY(-50px); opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="music" loop>
+<source src="https://cdn.pixabay.com/download/audio/2023/03/01/audio_0d6c0e3f25.mp3">
+</audio>
+
+<div class="gift-wrapper" id="giftWrapper">
+    <div class="gift-lid"></div>
+    <div class="gift-box" id="gift"></div>
+</div>
+
+<div class="opening" id="opening">
+    <h1>ryu &amp; jihan</h1>
+    <p>together forever</p>
+</div>
+
+<script>
+const gift = document.getElementById("gift");
+const wrapper = document.getElementById("giftWrapper");
+const opening = document.getElementById("opening");
+const music = document.getElementById("music");
+
+gift.addEventListener("click", () => {
+    music.play();
+    wrapper.classList.add("open");
+
+    setTimeout(()=>wrapper.style.opacity="0",900);
+
+    setTimeout(()=>{
+        opening.classList.add("show");
+        startTexts();
+        startLove();
+        startFireworks();
+        startSparkles();
+    },1200);
+});
+
+/* ===== TEKS TURUN 1 PERSATU ===== */
+function startTexts() {
+    setInterval(() => {
+        const t = document.createElement("div");
+        t.className = "text";
+        t.innerText = "ryuu lopee jihan";
+        t.style.left = Math.random() * (innerWidth - 300) + "px";
+        t.style.top = "-100px";
+        document.body.appendChild(t);
+
+        let y = -100;
+        const speed = 5;
+
+        const move = setInterval(() => {
+            y += speed;
+            t.style.top = y + "px";
+            if (y > innerHeight) {
+                clearInterval(move);
+                t.remove();
+            }
+        },20);
+    }, 450);
+}
+
+/* ===== LOVE ===== */
+function startLove() {
+    const hearts=["❤️","💖","💘","💕","💞"];
+    setInterval(()=>{
+        const l=document.createElement("div");
+        l.className="love";
+        l.innerHTML=hearts[Math.floor(Math.random()*hearts.length)];
+        l.style.left=Math.random()*innerWidth+"px";
+        l.style.fontSize=(40+Math.random()*60)+"px";
+        l.style.animationDuration=(1+Math.random()*1.5)+"s";
+        document.body.appendChild(l);
+        setTimeout(()=>l.remove(),2500);
+    },120);
+}
+
+/* ===== FIREWORK ===== */
+function startFireworks() {
+    setInterval(()=>{
+        for(let i=0;i<12;i++){
+            const f=document.createElement("div");
+            f.className="firework";
+            f.style.background=`hsl(${Math.random()*360},100%,65%)`;
+            f.style.left=Math.random()*innerWidth+"px";
+            f.style.top=Math.random()*innerHeight+"px";
+            f.style.setProperty("--x",(Math.random()*350-175)+"px");
+            f.style.setProperty("--y",(Math.random()*350-175)+"px");
+            document.body.appendChild(f);
+            setTimeout(()=>f.remove(),1000);
+        }
+    },420);
+}
+
+/* ===== SPARKLE ===== */
+function startSparkles(){
+    setInterval(()=>{
+        const s=document.createElement("div");
+        s.className="sparkle";
+        s.innerHTML="✨";
+        s.style.left=Math.random()*innerWidth+"px";
+        s.style.top=Math.random()*innerHeight+"px";
+        document.body.appendChild(s);
+        setTimeout(()=>s.remove(),1500);
+    },300);
+}
+</script>
+
+</body>
+</html>
